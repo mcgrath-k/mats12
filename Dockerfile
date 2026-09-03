@@ -1,4 +1,4 @@
-M pytorch/pytorch:2.13.0-cuda12.6-cudnn9-devel
+FROM pytorch/pytorch:2.13.0-cuda12.6-cudnn9-devel
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
