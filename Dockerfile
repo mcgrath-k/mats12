@@ -1,3 +1,5 @@
+FROM docker.io/tailscale/tailscale:stable AS tailscale
+
 FROM runpod/pytorch:1.1.0-cu1281-torch291-ubuntu2404
 
 # Model and kernel caches are deliberately disposable. Keep only code and
@@ -17,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         vim \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --from=tailscale /usr/local/bin/tailscale /usr/local/bin/tailscale
+COPY --from=tailscale /usr/local/bin/tailscaled /usr/local/bin/tailscaled
+
 COPY requirements.txt /tmp/requirements.txt
 
 # Qwen3.5 uses causal-conv1d plus FLA for its fast Gated DeltaNet path. The
@@ -27,6 +32,10 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel packagin
     && python -m pip check \
     && python -c "from importlib.metadata import version; import causal_conv1d, fla, jlens, torch, transformer_lens, transformers; print('lens environment OK:', torch.__version__, transformers.__version__, version('transformer-lens'))"
 
+COPY post_start.sh /post_start.sh
+RUN chmod 0755 /post_start.sh
+
 WORKDIR /workspace
 
-# Keep the base image's /start.sh entrypoint/CMD: it provides SSH and Jupyter.
+# Keep the base image's /start.sh entrypoint/CMD: it provides SSH and Jupyter,
+# then calls /post_start.sh to bring up the stable Tailscale connection.

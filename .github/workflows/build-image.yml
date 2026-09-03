@@ -8,6 +8,7 @@ on:
     paths:
       - Dockerfile
       - requirements.txt
+      - post_start.sh
       - .dockerignore
       - .github/workflows/build-image.yml
 

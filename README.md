@@ -29,11 +29,27 @@ configure registry credentials in the RunPod template.
   when you move to DeepSeek-V4-Flash
 - Persistent volume: mount at `/workspace` and make it as small as your code
   and irreplaceable experiment output allow
-- TCP port: `22` for VS Code Remote SSH
+- TCP port: `22` initially, as a fallback until Tailscale is confirmed
 - Optional HTTP port: `8888` for JupyterLab
 
-The RunPod base image starts SSH/Jupyter. Follow the SSH command shown in the
-Pod's **Connect** panel from VS Code's Remote-SSH extension.
+Add a non-ephemeral RunPod secret `TS_AUTHKEY` to the template as an environment
+variable. You can optionally set `TS_HOSTNAME`; it defaults to `mats12`.
+
+The image starts Tailscale in userspace mode and keeps its device identity in
+`/workspace/.tailscale`. On your Mac, install and sign in to Tailscale with the
+same account. Then add this to `~/.ssh/config` for VS Code Remote SSH:
+
+```ssh-config
+Host mats12
+    HostName mats12
+    User root
+```
+
+After the first successful connection, remove or revoke `TS_AUTHKEY` and restart
+the Pod. Its saved identity reconnects without the key. Keep RunPod TCP port 22
+until this has worked once; afterward you can remove it from the template and
+use only private Tailscale SSH. RunPod's normal SSH and Jupyter startup remains
+available as a fallback.
 
 Python packages live in the image. Put code, notebooks, and experiment output
 under `/workspace`; only those files survive a Pod stop. By default, Hugging
