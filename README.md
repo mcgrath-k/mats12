@@ -11,12 +11,15 @@ Push to `main` or run **Build RunPod image** from the GitHub Actions tab. The
 workflow publishes:
 
 ```text
-ghcr.io/<your-github-user>/lens-env:latest
-ghcr.io/<your-github-user>/lens-env:<commit-sha>
+ghcr.io/<your-github-user>/mats12:latest
+ghcr.io/<your-github-user>/mats12:v<build-number>
+ghcr.io/<your-github-user>/mats12:<commit-sha>
 ```
 
-Use the commit-SHA tag in RunPod once the build succeeds. Make the GHCR package
-public, or configure registry credentials in the RunPod template.
+When the build finishes, its GitHub Actions summary shows the exact versioned
+address to paste into RunPod's **Container Image** field. Build numbers increase
+automatically (`v1`, `v2`, `v3`, and so on). Make the GHCR package public, or
+configure registry credentials in the RunPod template.
 
 ## RunPod template
 

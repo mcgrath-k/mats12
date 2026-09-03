@@ -21,7 +21,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/lens-env
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:
@@ -57,10 +57,22 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/lens-env:latest
-            ghcr.io/${{ github.repository_owner }}/lens-env:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            org.opencontainers.image.version=v${{ github.run_number }}
+          # Reuse cache metadata embedded in the previous image. This avoids
+          # uploading the multi-GB CUDA base a second time to Actions cache.
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/mats12:latest
+          cache-to: type=inline
+
+      - name: Show RunPod image
+        run: |
+          echo '## RunPod image' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Paste this into the **Container Image** field:' >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
