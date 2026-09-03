@@ -1,31 +1,32 @@
-FROM pytorch/pytorch:2.13.0-cuda12.6-cudnn9-devel
+FROM runpod/pytorch:1.1.0-cu1281-torch291-ubuntu2404
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
+# Model and kernel caches are deliberately disposable. Keep only code and
+# experiment outputs under the persistent /workspace mount.
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/root/.cache/huggingface \
+    TORCH_HOME=/root/.cache/torch \
+    XDG_CACHE_HOME=/root/.cache
 
+# The RunPod base already starts SSH and Jupyter, which is what VS Code Remote SSH needs.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    wget \
-    vim \
-    tmux \
-    htop \
-    openssh-server \
+        git \
+        htop \
+        tmux \
+        vim \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip
+COPY requirements.txt /tmp/requirements.txt
 
-# Pin the things whose versions actually matter.
-RUN pip install \
-    "transformers==5.13.0" \
-    "accelerate==1.14.0" \
-    "huggingface-hub==1.23.0" \
-    safetensors \
-    ipykernel \
-    jupyterlab
-
-RUN pip install \
-    "git+https://github.com/anthropics/jacobian-lens.git"
+# Qwen3.5 uses causal-conv1d plus FLA for its fast Gated DeltaNet path. The
+# package publishes a wheel for this image's Python 3.12 / PyTorch 2.9 / CUDA 12.x.
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel packaging ninja \
+    && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
+    && python -m pip install --no-cache-dir --no-build-isolation "causal-conv1d==1.7.0" \
+    && python -m pip check \
+    && python -c "from importlib.metadata import version; import causal_conv1d, fla, jlens, torch, transformer_lens, transformers; print('lens environment OK:', torch.__version__, transformers.__version__, version('transformer-lens'))"
 
 WORKDIR /workspace
 
+# Keep the base image's /start.sh entrypoint/CMD: it provides SSH and Jupyter.
