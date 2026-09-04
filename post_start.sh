@@ -15,6 +15,13 @@ readonly GITHUB_SSH_KEY="${GITHUB_SSH_DIR}/runpod_github"
 readonly GITHUB_KNOWN_HOSTS="${GITHUB_SSH_DIR}/known_hosts"
 
 configure_github_ssh() {
+    if [[ -n "${GIT_USER_NAME:-}" ]]; then
+        git config --global user.name "${GIT_USER_NAME}"
+    fi
+    if [[ -n "${GIT_USER_EMAIL:-}" ]]; then
+        git config --global user.email "${GIT_USER_EMAIL}"
+    fi
+
     if [[ -z "${GITHUB_SSH_KEY_B64:-}" ]]; then
         echo "GitHub SSH warning: GITHUB_SSH_KEY_B64 is unset; skipping setup."
         return 0

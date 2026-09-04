@@ -18,8 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         openssh-client \
         tmux \
         vim \
-    && git config --system user.name "Kyle McGrath" \
-    && git config --system user.email "x11kjm@gmail.com" \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=tailscale /usr/local/bin/tailscale /usr/local/bin/tailscale
