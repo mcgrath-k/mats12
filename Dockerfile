@@ -36,12 +36,15 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel packagin
     && python -c "from importlib.metadata import version; import causal_conv1d, fla, jlens, torch, transformer_lens, transformers; print('lens environment OK:', torch.__version__, transformers.__version__, version('transformer-lens'))"
 
 # Keep DeepSeek-V4's newer PyTorch stack isolated from the pinned lens stack.
+# fast_hadamard_transform is only needed by DeepSeek's reference inference code (not by
+# Transformers). PyPI ships a source tarball that does not build without a GPU, so install
+# the prebuilt wheel (Python 3.12, CUDA 12, torch 2.10) from the project's GitHub release.
 RUN /usr/bin/uv venv --python /usr/bin/python3.12 /opt/deepseek-v4 \
     && /usr/bin/uv pip install --python /opt/deepseek-v4/bin/python \
         --torch-backend=cu128 \
         -r /tmp/requirements-deepseek-v4.txt setuptools wheel packaging ninja \
     && /usr/bin/uv pip install --python /opt/deepseek-v4/bin/python \
-        --no-build-isolation fast_hadamard_transform \
+        "fast_hadamard_transform @ https://github.com/Dao-AILab/fast-hadamard-transform/releases/download/v1.1.0.post2/fast_hadamard_transform-1.1.0+cu12torch2.10cxx11abiTRUE-cp312-cp312-linux_x86_64.whl" \
     && /opt/deepseek-v4/bin/python -m ipykernel install \
         --prefix=/usr/local \
         --name deepseek-v4 \
