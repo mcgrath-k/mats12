@@ -6,3 +6,8 @@ huggingface-hub==1.29.0
 safetensors>=0.7.0
 tilelang==0.1.8
 ipykernel>=6,<7
+
+# Used by the probe notebook.
+scikit-learn==1.9.0
+datasets==5.0.1
+matplotlib==3.11.1

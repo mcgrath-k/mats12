@@ -25,10 +25,10 @@ configure registry credentials in the RunPod template.
 
 - Container image: the GHCR image above
 - Additional GPU filters: CUDA 12.8, 12.9, or 13.0 (the image requires 12.8+)
-- Container disk: 40-50 GB for Qwen3.5-9B; resize to roughly 200-250 GB
-  when you move to DeepSeek-V4-Flash
-- Persistent volume: mount at `/workspace` and make it as small as your code
-  and irreplaceable experiment output allow
+- Container disk: 40-50 GB is enough; model weights do not live on it
+- Persistent network volume: mount at `/workspace`. It holds code, experiment
+  output, and the Hugging Face cache, so size it for the models you use:
+  about 25 GB for Qwen3.5-9B, 160 GB more for DeepSeek-V4-Flash
 - TCP port: `22` initially, as a fallback until Tailscale is confirmed
 - Optional HTTP port: `8888` for JupyterLab
 
@@ -52,11 +52,9 @@ use only private Tailscale SSH. RunPod's normal SSH and Jupyter startup remains
 available as a fallback.
 
 Python packages live in the image. Put code, notebooks, and experiment output
-under `/workspace`; only those files survive a Pod stop. By default, Hugging
-Face and Torch caches live on the disposable container disk and will be
-downloaded again. If you decide model re-download time matters, set `HF_HOME`
-to `/workspace/.cache/huggingface` in the RunPod template and allow roughly
-25 GB more persistent space.
+under `/workspace`; only those files survive a Pod stop. The image sets
+`HF_HOME=/workspace/.cache/huggingface`, so model weights are downloaded once
+and reused across Pods. The Torch cache stays on the disposable container disk.
 
 ## First start
 

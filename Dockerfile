@@ -2,12 +2,13 @@ FROM docker.io/tailscale/tailscale:stable AS tailscale
 
 FROM runpod/pytorch:1.1.0-cu1281-torch291-ubuntu2404
 
-# Model and kernel caches are deliberately disposable. Keep only code and
-# experiment outputs under the persistent /workspace mount.
+# Model weights are cached on the persistent /workspace network volume so a Pod
+# restart does not re-download them (DeepSeek-V4-Flash alone is 160 GB). Torch and
+# other caches stay on the disposable container disk.
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    HF_HOME=/root/.cache/huggingface \
+    HF_HOME=/workspace/.cache/huggingface \
     TORCH_HOME=/root/.cache/torch \
     XDG_CACHE_HOME=/root/.cache
 
