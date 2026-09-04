@@ -4,9 +4,19 @@ transformer-lens==3.8.1
 accelerate==1.14.0
 huggingface-hub==1.29.0
 flash-linear-attention[cuda]==0.5.2
-# Match Notebook 7.5.6 already provided by the pinned RunPod base image.
-jupyterlab==4.5.10
+# JupyterLab 4.6 + notebook 7.6 (the base image ships 7.5.6, which needs JupyterLab <4.6).
+jupyterlab==4.6.3
+notebook==7.6.2
 ipywidgets>=8.1,<9
 
 # Anthropic's reference J-lens loader/fitter, pinned to an immutable commit.
 jlens @ git+https://github.com/anthropics/jacobian-lens.git@581d398613e5602a5af361e1c34d3a92ea82ba8e
+
+# Used by the notebooks.
+scikit-learn==1.9.0
+datasets==5.0.1
+matplotlib==3.11.1
+
+# Let Claude Code edit and run notebook cells through jupyter-mcp-server (see ~/.claude/jupyter-mcp/README.md on the laptop).
+jupyter-collaboration==5.0.2
+jupyter-mcp-tools==0.1.7

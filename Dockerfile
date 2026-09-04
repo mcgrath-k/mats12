@@ -32,7 +32,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel packagin
     && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
     && python -m pip install --no-cache-dir --no-build-isolation "causal-conv1d==1.7.0" \
     && python -m pip check \
-    && python -c "from importlib.metadata import version; import causal_conv1d, fla, jlens, torch, transformer_lens, transformers, scikit-learn; print('lens environment OK:', torch.__version__, transformers.__version__, version('transformer-lens'))"
+    && python -c "from importlib.metadata import version; import causal_conv1d, fla, jlens, torch, transformer_lens, transformers; print('lens environment OK:', torch.__version__, transformers.__version__, version('transformer-lens'))"
 
 # Keep DeepSeek-V4's newer PyTorch stack isolated from the pinned lens stack.
 RUN /usr/bin/uv venv --python /usr/bin/python3.12 /opt/deepseek-v4 \
