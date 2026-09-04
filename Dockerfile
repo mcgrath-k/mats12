@@ -37,7 +37,10 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel packagin
 # Keep DeepSeek-V4's newer PyTorch stack isolated from the pinned lens stack.
 RUN /usr/bin/uv venv --python /usr/bin/python3.12 /opt/deepseek-v4 \
     && /usr/bin/uv pip install --python /opt/deepseek-v4/bin/python \
-        --torch-backend=cu128 -r /tmp/requirements-deepseek-v4.txt \
+        --torch-backend=cu128 \
+        -r /tmp/requirements-deepseek-v4.txt setuptools wheel packaging ninja \
+    && /usr/bin/uv pip install --python /opt/deepseek-v4/bin/python \
+        --no-build-isolation fast_hadamard_transform \
     && /opt/deepseek-v4/bin/python -m ipykernel install \
         --prefix=/usr/local \
         --name deepseek-v4 \
